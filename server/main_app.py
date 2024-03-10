@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-from bardapi import Bard
 import os
 from dotenv.main import load_dotenv
 import google.generativeai as genai
