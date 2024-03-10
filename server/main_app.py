@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from bardapi import Bard
 import os
 from dotenv.main import load_dotenv
+import google.generativeai as genai
 # from image_links import identify_image_class
 
 
@@ -18,14 +19,56 @@ import string
 from flask_cors import CORS, cross_origin
 
 
-# Load environment variables
-load_dotenv()
+# # Load environment variables
+# load_dotenv()
+
+# # Access environment variables
+# token = os.environ.get("BARD_API_KEY")
+
+# # Create a Bard instance
+# bard = Bard(token=token)
 
 # Access environment variables
-token = os.environ.get("BARD_API_KEY")
+token = os.environ.get("GEMINI_KEY")
 
-# Create a Bard instance
-bard = Bard(token=token)
+genai.configure(api_key=token)
+
+# Set up the model
+generation_config = {
+  "temperature": 0.9,
+  "top_p": 1,
+  "top_k": 1,
+  "max_output_tokens": 2048,
+}
+
+safety_settings = [
+  {
+    "category": "HARM_CATEGORY_HARASSMENT",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+  },
+  {
+    "category": "HARM_CATEGORY_HATE_SPEECH",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+  },
+  {
+    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+  },
+  {
+    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+  },
+]
+
+model = genai.GenerativeModel(model_name="gemini-1.0-pro",
+                              generation_config=generation_config,
+                              safety_settings=safety_settings)
+
+convo = model.start_chat(history=[
+])
+
+# convo.send_message("how is the weather?")
+# print(convo.last.text)
 
 
 # Create a Flask app instance
@@ -332,10 +375,18 @@ def generate_urls(filtered_list):
 
 def get_answer_bard(prompt):
 
-    prompt+=", suggest a single outfit specifically with details in 5 points as top, bottom, shoes, jewelry and accessories. Do not give additional tips and information. Keep your response very short within 100 words."
-    result = bard.get_answer(prompt)
+    prompt+=", suggest a single outfit specifically with details in 4 points as top, bottom, shoes and accessories. Do not give additional tips and information. Keep your response very short within 100 words."
+    # result = bard.get_answer(prompt)
+
+    print("prompt:")
+    print(prompt)
+
+    convo.send_message(prompt)
+    result=convo.last.text
+
+    print("gemini response:")
     print(result)
-    bard_response = result["content"]
+    bard_response = result
 
 
     output = ""
@@ -349,6 +400,8 @@ def get_answer_bard(prompt):
         output += line + '\n\n'
 
     bard_response=output
+    print("bard response output:")
+    print(output)
 
 
     item_list = []
@@ -356,6 +409,8 @@ def get_answer_bard(prompt):
 
     for line in lines:
         line = line.strip()
+        print("printing line:")
+        print(line)
         if line.startswith('*'):
             # output.append(line)
             item_parts = line.split(':**')

@@ -49,5 +49,5 @@ model = genai.GenerativeModel(model_name="gemini-1.0-pro",
 convo = model.start_chat(history=[
 ])
 
-convo.send_message("write an essay")
+convo.send_message("how is the weather?")
 print(convo.last.text)
