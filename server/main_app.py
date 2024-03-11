@@ -498,34 +498,34 @@ def get_recommendations():
 
 
 
-@app.route('/fresh-chat', methods=['POST'])
-def fresh_chat():
-    print("creating new conversation thread with bard")
+# @app.route('/fresh-chat', methods=['POST'])
+# def fresh_chat():
+#     print("creating new conversation thread with bard")
     
-    # Additional cleanup or shutdown logic can be added here.
+#     # Additional cleanup or shutdown logic can be added here.
     
-    # Restart the server by using sys.executable to run the current Python script.
-    # os.execl(sys.executable, sys.executable, *sys.argv)
-    global bard
-    bard = Bard(token=token)
-    global to_bard
-    to_bard=False
-    global count
-    count=0
+#     # Restart the server by using sys.executable to run the current Python script.
+#     # os.execl(sys.executable, sys.executable, *sys.argv)
+#     global bard
+#     bard = Bard(token=token)
+#     global to_bard
+#     to_bard=False
+#     global count
+#     count=0
 
 
-    global occasion
-    occasion=[]
-    global required
-    required=["occasion","location","gender","age"]
-    global location
-    location=None
-    global gender
-    gender=None
-    global age
-    age=None
+#     global occasion
+#     occasion=[]
+#     global required
+#     required=["occasion","location","gender","age"]
+#     global location
+#     location=None
+#     global gender
+#     gender=None
+#     global age
+#     age=None
 
-    return jsonify({"bot_response": "bot_response"})
+#     return jsonify({"bot_response": "bot_response"})
    
     
 if __name__ == '__main__':
