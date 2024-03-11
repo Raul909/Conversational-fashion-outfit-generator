@@ -530,4 +530,6 @@ def get_recommendations():
     
 if __name__ == '__main__':
     app.run(debug=True)
-
+    # This line specifies to run the app on all available network interfaces
+    # on port 8080
+    app.run(host='0.0.0.0', port=8080)
