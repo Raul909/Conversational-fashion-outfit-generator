@@ -1,124 +1,112 @@
-import { useState, useEffect, useRef } from "react";
-import axios from "axios";
-import SpeechRecognition, {
-  useSpeechRecognition,
-} from "react-speech-recognition";
-// import { Intro } from "./Intro";
-import { Loading } from "./Loading";
+// const [input, setInput] = useState("");
 
-function ChatBox() {
-  const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([]);
-  // const [sample, setSample] = useState(false);
-  // const [input, setInput] = useState("");
+const sendMessage = async (textbtn) => {
+  console.log(textbtn);
+  let sample;
 
-  const sendMessage = async (textbtn) => {
-    console.log(textbtn);
-    let sample;
+  if (typeof textbtn == "string") sample = true;
+  console.log(sample);
+  if (!sample) if (!input.trim()) return;
+  console.log(input);
+  try {
+    setInput("");
+    setMessages([
+      ...messages,
+      { text: sample ? textbtn : input, isUser: true, loading: false },
+      { text: "generating...", isUser: false, loading: true },
+    ])
 
-    if (typeof textbtn == "string") sample = true;
-    console.log(sample);
-    if (!sample) if (!input.trim()) return;
-    console.log(input);
-    try {
-      setInput("");
-      setMessages([
-        ...messages,
-        { text: sample ? textbtn : input, isUser: true, loading: false },
-        { text: "generating...", isUser: false, loading: true },
-      ])
+    // Use environment variable for API URL or fallback to localhost
+    const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000";
 
-      // Use environment variable for API URL or fallback to localhost
-      const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000";
+    const response = await axios.post(
+      `${API_URL}/api/recommendations`,
+      {
+        userMessage: sample ? textbtn : input,
+      }
+    );
 
-      const response = await axios.post(
-        `${API_URL}/api/recommendations`,
-        {
-          userMessage: sample ? textbtn : input,
-        }
-      );
-
-      const botResponse = response.data.bot_response;
-      setMessages([
-        ...messages,
-        { text: sample ? textbtn : input, isUser: true, loading: false },
-        { text: botResponse, isUser: false, loading: false },
-      ]);
-    } catch (error) {
-      setMessages([
-        ...messages,
-        { text: sample ? textbtn : input, isUser: true, loading: false },
-        {
-          text: `error generating response: ${error.message}`,
-          isUser: false,
-          loading: false,
-        },
-      ]);
-      console.error("Error fetching bot response:", error);
-    }
-    // setSample(false);
-  };
-
-  const createNewChat = async () => {
-    setMessages([]);
-    // Fresh chat endpoint is currently disabled on backend
-    // await axios.post("http://127.0.0.1:5000/fresh-chat", {
-    //   userMessage: null,
-    // });
-  };
-  const messagesEndRef = useRef(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  //recorder
-  const [isRecording, setisRecording] = useState(false);
-  const startRecording = () => {
-    // setInput(transcript);
-    setisRecording(true);
-    SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
-  };
-  const { transcript, resetTranscript, browserSupportsSpeechRecognition } =
-    useSpeechRecognition();
-
-  const stopRecording = () => {
-    setInput(transcript);
-    setisRecording(false);
-    SpeechRecognition.stopListening();
-    resetTranscript();
-  };
-
-  if (!browserSupportsSpeechRecognition) {
-    return null;
+    const botResponse = response.data.bot_response;
+    setMessages([
+      ...messages,
+      { text: sample ? textbtn : input, isUser: true, loading: false },
+      { text: botResponse, isUser: false, loading: false },
+    ]);
+  } catch (error) {
+    setMessages([
+      ...messages,
+      { text: sample ? textbtn : input, isUser: true, loading: false },
+      {
+        text: `error generating response: ${error.message}`,
+        isUser: false,
+        loading: false,
+      },
+    ]);
+    console.error("Error fetching bot response:", error);
   }
+  // setSample(false);
+};
 
-  return (
-    <div className="chat-container animate-fade-in">
-      <div className="container mx-auto">
-        <div className="h-screen">
-          <div className="flex rounded-xl shadow-2xl h-full overflow-hidden glass-panel">
-            {/* <!-- Sidebar --> */}
-            <div className="w-[20%] hidden md:flex flex-col bg-white/80 backdrop-blur-lg border-r border-gray-200">
-              {/* <!-- Header --> */}
-              <div className="py-4 px-4 border-b border-gray-200 bg-gradient-to-r from-indigo-500 to-purple-600">
-                <h1 className="text-2xl font-bold text-white text-center">Chats</h1>
-              </div>
+const createNewChat = async () => {
+  setMessages([]);
+  // Fresh chat endpoint is currently disabled on backend
+  // await axios.post("http://127.0.0.1:5000/fresh-chat", {
+  //   userMessage: null,
+  // });
+};
+const messagesEndRef = useRef(null);
 
-              {/* <!-- Contacts --> */}
-              <div className="flex-1 overflow-auto">
-                <div className="bg-white/50 px-4 py-3 flex items-center hover:bg-white/80 cursor-pointer transition-smooth">
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <h1 className="font-medium text-gray-700">Test Conversation 1</h1>
-                    </div>
+const scrollToBottom = () => {
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+};
+
+useEffect(() => {
+  scrollToBottom();
+}, [messages]);
+
+//recorder
+const [isRecording, setisRecording] = useState(false);
+const startRecording = () => {
+  // setInput(transcript);
+  setisRecording(true);
+  SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+};
+const { transcript, resetTranscript, browserSupportsSpeechRecognition } =
+  useSpeechRecognition();
+
+const stopRecording = () => {
+  setInput(transcript);
+  setisRecording(false);
+  SpeechRecognition.stopListening();
+  resetTranscript();
+};
+
+if (!browserSupportsSpeechRecognition) {
+  return null;
+}
+
+return (
+  <div className="chat-container animate-fade-in">
+    <div className="container mx-auto">
+      <div className="h-screen">
+        <div className="flex rounded-xl shadow-2xl h-full overflow-hidden glass-panel">
+          {/* <!-- Sidebar --> */}
+          <div className="w-[20%] hidden md:flex flex-col bg-white/80 backdrop-blur-lg border-r border-gray-200">
+            {/* <!-- Header --> */}
+            <div className="py-4 px-4 border-b border-gray-200 bg-gradient-to-r from-indigo-500 to-purple-600">
+              <h1 className="text-2xl font-bold text-white text-center">Chats</h1>
+            </div>
+
+            {/* <!-- Contacts --> */}
+            <div className="flex-1 overflow-auto">
+              <div className="bg-white/50 px-4 py-3 flex items-center hover:bg-white/80 cursor-pointer transition-smooth">
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <h1 className="font-medium text-gray-700">Test Conversation 1</h1>
                   </div>
                 </div>
-                {/* <div className="bg-white px-3 flex items-center hover:bg-gray-200 cursor-pointer">
+              </div>
+              {/* <div className="bg-white px-3 flex items-center hover:bg-gray-200 cursor-pointer">
                   <div
                     onClick={createNewChat}
                     className="ml-4 flex-1 border-b border-gray-400 py-4"
@@ -127,31 +115,31 @@ function ChatBox() {
                     <h1 className=" ">Create a fresh conversation</h1>
                   </div>
                 </div> */}
-                <button
-                  onClick={createNewChat}
-                  className="btn-primary w-full mx-4 my-6 absolute bottom-0 left-0 right-0"
-                  style={{ width: 'calc(100% - 2rem)' }}
-                >
-                  + New Conversation
-                </button>
+              <button
+                onClick={createNewChat}
+                className="btn-primary w-full mx-4 my-6 absolute bottom-0 left-0 right-0"
+                style={{ width: 'calc(100% - 2rem)' }}
+              >
+                + New Conversation
+              </button>
+            </div>
+          </div>
+
+          {/* <!-- Chat Area --> */}
+          <div className="flex-1 md:w-[80%] w-full flex flex-col bg-white/60 backdrop-blur-sm">
+            {/* <!-- Header --> */}
+            <div className="py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 flex flex-row justify-between items-center shadow-lg">
+              <div className="flex items-center">
+                <div>
+                  <p className="text-2xl font-bold text-white">Fashion Outfit Assistant</p>
+                  <p className="text-sm text-indigo-100">AI-powered style recommendations</p>
+                </div>
               </div>
             </div>
 
-            {/* <!-- Chat Area --> */}
-            <div className="flex-1 md:w-[80%] w-full flex flex-col bg-white/60 backdrop-blur-sm">
-              {/* <!-- Header --> */}
-              <div className="py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 flex flex-row justify-between items-center shadow-lg">
-                <div className="flex items-center">
-                  <div>
-                    <p className="text-2xl font-bold text-white">Fashion Outfit Assistant</p>
-                    <p className="text-sm text-indigo-100">AI-powered style recommendations</p>
-                  </div>
-                </div>
-              </div>
+            {/* <Intro /> */}
 
-              {/* <Intro /> */}
-
-              {/* <>
+            {/* <>
                 <div className="py-2 px-3">
                   <div className={"flex mb-2"}>
                     <div className={"rounded py-2 px-3 bg-gray-50"}>
@@ -222,72 +210,72 @@ function ChatBox() {
               </div>
 
               {/* <!-- Input --> */}
-              <div className="bg-white rounded-lg whitespace-nowrap box-border outline-none m-6 px-1 py-1 flex items-center">
-                <div className="flex-1 mx-4">
-                  <input
-                    className="w-full  px-2 py-2  whitespace-nowrap box-border outline-none              "
-                    type="text"
-                    value={isRecording ? transcript : input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        // 👇 Get input value
-                        sendMessage();
-                      }
-                    }}
-                  />
-                </div>
+            <div className="bg-white rounded-lg whitespace-nowrap box-border outline-none m-6 px-1 py-1 flex items-center">
+              <div className="flex-1 mx-4">
+                <input
+                  className="w-full  px-2 py-2  whitespace-nowrap box-border outline-none              "
+                  type="text"
+                  value={isRecording ? transcript : input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      // 👇 Get input value
+                      sendMessage();
+                    }
+                  }}
+                />
+              </div>
 
-                <div className="items-center flex">
-                  <button
-                    className="p-2"
-                    onClick={isRecording ? stopRecording : startRecording}
+              <div className="items-center flex">
+                <button
+                  className="p-2"
+                  onClick={isRecording ? stopRecording : startRecording}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill={isRecording ? "blue" : "none"}
+                    viewBox="0 0 24 24"
+                    strokeWidth={isRecording ? 0 : 1.5}
+                    stroke={isRecording ? "" : "blue"}
+                    className="w-6 h-6"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill={isRecording ? "blue" : "none"}
-                      viewBox="0 0 24 24"
-                      strokeWidth={isRecording ? 0 : 1.5}
-                      stroke={isRecording ? "" : "blue"}
-                      className="w-6 h-6"
-                    >
-                      {isRecording ? (
-                        <>
-                          <path d="M8.25 4.5a3.75 3.75 0 117.5 0v8.25a3.75 3.75 0 11-7.5 0V4.5z" />
-                          <path d="M6 10.5a.75.75 0 01.75.75v1.5a5.25 5.25 0 1010.5 0v-1.5a.75.75 0 011.5 0v1.5a6.751 6.751 0 01-6 6.709v2.291h3a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5h3v-2.291a6.751 6.751 0 01-6-6.709v-1.5A.75.75 0 016 10.5z" />
-                        </>
-                      ) : (
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
-                        />
-                      )}
-                    </svg>
-                  </button>
-                  <button
-                    onClick={sendMessage}
-                    className="p-2.5 rounded-xl mx-1 bg-blue-700"
+                    {isRecording ? (
+                      <>
+                        <path d="M8.25 4.5a3.75 3.75 0 117.5 0v8.25a3.75 3.75 0 11-7.5 0V4.5z" />
+                        <path d="M6 10.5a.75.75 0 01.75.75v1.5a5.25 5.25 0 1010.5 0v-1.5a.75.75 0 011.5 0v1.5a6.751 6.751 0 01-6 6.709v2.291h3a.75.75 0 010 1.5h-7.5a.75.75 0 010-1.5h3v-2.291a6.751 6.751 0 01-6-6.709v-1.5A.75.75 0 016 10.5z" />
+                      </>
+                    ) : (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
+                      />
+                    )}
+                  </svg>
+                </button>
+                <button
+                  onClick={sendMessage}
+                  className="p-2.5 rounded-xl mx-1 bg-blue-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="white   "
+                    strokeWidth={1.5}
+                    stroke="white"
+                    className="w-4 h-4"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="white   "
-                      strokeWidth={1.5}
-                      stroke="white"
-                      className="w-4 h-4"
-                    >
-                      <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
-                    </svg>
-                  </button>
-                </div>
+                    <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default ChatBox;
