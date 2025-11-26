@@ -1,0 +1,60 @@
+# Render Configuration File
+# This file configures automatic deployment of the Fashion Outfit Generator backend
+
+services:
+  # Web Service - Flask Backend
+  - type: web
+    name: fashion-outfit-backend
+    env: python
+    region: oregon  # Choose your preferred region
+    plan: free  # Options: free, starter, standard
+    
+    # Build command - runs once during deployment
+    buildCommand: |
+      cd server
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      python -m spacy download en_core_web_md
+      python -m spacy download en_core_web_sm
+    
+    # Start command - runs to start your application
+    startCommand: cd server && python main_app.py
+    
+    # Environment variables
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.16
+      
+      - key: GEMINI_KEY
+        sync: false  # This must be set manually in Render dashboard
+      
+      - key: ALLOWED_ORIGINS
+        value: http://localhost:3000  # Update with your frontend URL after deployment
+      
+      - key: FLASK_DEBUG
+        value: False
+    
+    # Health check endpoint
+    healthCheckPath: /api/recommendations
+    
+    # Auto-deploy settings
+    autoDeploy: true  # Automatically deploy on git push
+    
+    # Custom domains (optional)
+    # domains:
+    #   - your-custom-domain.com
+
+# Optional: Add a cron job for periodic tasks
+# - type: cron
+#   name: cleanup-job
+#   env: python
+#   schedule: "0 0 * * *"  # Daily at midnight
+#   buildCommand: cd server && pip install -r requirements.txt
+#   startCommand: cd server && python cleanup_script.py
+
+# Optional: Add a background worker
+# - type: worker
+#   name: image-processor
+#   env: python
+#   buildCommand: cd server && pip install -r requirements.txt
+#   startCommand: cd server && python worker.py

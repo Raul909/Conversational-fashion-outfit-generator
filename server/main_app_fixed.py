@@ -1,14 +1,23 @@
+"""
+Fixed version of main_app.py for Render deployment
+This file contains the necessary changes to deploy on Render.
+
+Key Changes:
+1. Port binding using environment variable
+2. Cross-platform file paths using os.path
+3. Better error handling for environment variables
+4. Production-ready CORS configuration
+5. Debug mode disabled for production
+"""
+
 from flask import Flask, request, jsonify
 import os
-from dotenv.main import load_dotenv
+from pathlib import Path
+from dotenv import load_dotenv
 import google.generativeai as genai
-# from image_links import identify_image_class
-
 
 import requests
 from bs4 import BeautifulSoup
-# from filters import all_generated_urls
-
 
 import spacy
 import re
@@ -17,18 +26,17 @@ import string
 
 from flask_cors import CORS, cross_origin
 
+# Get base directory for resolving paths
+BASE_DIR = Path(__file__).resolve().parent
 
-# # Load environment variables
-# load_dotenv()
+# Load environment variables (works in development with .env file)
+if os.path.exists('.env'):
+    load_dotenv()
 
-# # Access environment variables
-# token = os.environ.get("BARD_API_KEY")
-
-# # Create a Bard instance
-# bard = Bard(token=token)
-
-# Access environment variables
+# Access environment variables with error handling
 token = os.environ.get("GEMINI_KEY")
+if not token:
+    raise ValueError("GEMINI_KEY environment variable is required!")
 
 genai.configure(api_key=token)
 
@@ -66,15 +74,13 @@ model = genai.GenerativeModel(model_name="gemini-1.0-pro",
 convo = model.start_chat(history=[
 ])
 
-# convo.send_message("how is the weather?")
-# print(convo.last.text)
-
-
 # Create a Flask app instance
 app = Flask(__name__)
-CORS(app)
 
-
+# Configure CORS for production
+# Get allowed origins from environment or default to localhost
+ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS}})
 
 
 def bold_text(text):
@@ -95,18 +101,21 @@ gender=None
 age=None
 colourset=["pink"+"black"+"purple"]
 colours = " ".join(colourset)
-# required=[]
 
 def get_location(prompt):
+    # Use cross-platform path
+    csv_file_path = BASE_DIR / 'data' / 'indian_places.csv'
     
-
-    csv_file_path = '.\data\indian_places.csv'
+    # Verify file exists
+    if not csv_file_path.exists():
+        print(f"Warning: {csv_file_path} not found!")
+        return None
+    
     # Load the specific CSV file
     data = pd.read_csv(csv_file_path, header=None, names=['place_name'])
 
     # Filter the dataset to include only Indian place names
     indian_places = data['place_name']
-
 
     detected_place=None
     main_string_lower = prompt.lower()
@@ -119,20 +128,21 @@ def get_location(prompt):
     return detected_place
 
 
-
-
-
 def check_prompt(prompt):
     global to_bard
     global required
     print("checking...")
 
-    nlp1 = spacy.load(r"./models/ner_model_occasion/output/model-best") #load the best model
+    # Use cross-platform paths for model loading
+    model_occasion_path = BASE_DIR / 'models' / 'ner_model_occasion' / 'output' / 'model-best'
+    
+    # Check if model exists
+    if not model_occasion_path.exists():
+        print(f"Warning: Model not found at {model_occasion_path}")
+        # You might want to download or handle this differently
+    
+    nlp1 = spacy.load(str(model_occasion_path))
     nlp2 = spacy.load("en_core_web_md")
-
-    # occasion=[]
-    # location=[]
-    # required=[]
 
     doc1 = nlp1(prompt) # input sample text
 
@@ -145,9 +155,6 @@ def check_prompt(prompt):
         if "occasion" in required:
             required.remove("occasion")
 
-    
-
-
     substrings = ["man", "woman", "girl", "boy","lady","male","female","baby"]
 
     main_string_lower = prompt.lower()
@@ -155,13 +162,11 @@ def check_prompt(prompt):
     for substring in substrings:
         pattern = r'\b' + re.escape(substring.lower()) + r'\b'
         if re.search(pattern, main_string_lower):
-            
             gender=substring
             print("detected_gender: "+gender)
     if gender:
         if "gender" in required:
             required.remove("gender")
-
 
     global location
     if not location:
@@ -174,7 +179,6 @@ def check_prompt(prompt):
     pattern = r'\d+'  # Regular expression pattern for one or more digits
     global age
     if not age:
-        
         age = re.findall(pattern, prompt)
         age2=" ".join(age)
         age=age2
@@ -201,36 +205,34 @@ def check_prompt(prompt):
     return response
 
 
-
-
-
 def find_image_class(url):
-    response = requests.get(url,verify=False)
-    
-    if response.status_code == 200:
-        html_content = response.text
-    else:
-        return None
-    
-    soup = BeautifulSoup(html_content, 'html.parser')
-    img_tags = soup.find_all('img', class_='_2r_T1I')
-    img_tags2 = soup.find_all('img', class_='_396cs4')
-    img_urls=[]  
+    try:
+        response = requests.get(url, verify=False, timeout=10)
+        
+        if response.status_code == 200:
+            html_content = response.text
+        else:
+            return None
+        
+        soup = BeautifulSoup(html_content, 'html.parser')
+        img_tags = soup.find_all('img', class_='_2r_T1I')
+        img_tags2 = soup.find_all('img', class_='_396cs4')
+        img_urls=[]  
 
-    if img_tags:
-          
+        if img_tags:
             img_urls = [img['src'] for img in img_tags[:5]]  # Get top 5 image URLs
-
             for image in img_urls:
-                 print(image)
-    elif img_tags2:
-        img_urls = [img['src'] for img in img_tags2[:5]]  # Get top 5 image URLs
-
-        for image in img_urls:
-                 print(image)
-    print("printing each result: ")   
-    print(img_urls)
-    return img_urls
+                print(image)
+        elif img_tags2:
+            img_urls = [img['src'] for img in img_tags2[:5]]  # Get top 5 image URLs
+            for image in img_urls:
+                print(image)
+        print("printing each result: ")   
+        print(img_urls)
+        return img_urls
+    except Exception as e:
+        print(f"Error scraping {url}: {e}")
+        return []
 
 
 def identify_image_class(all_generated_urls):
@@ -240,16 +242,12 @@ def identify_image_class(all_generated_urls):
         img_urls = []
         result = find_image_class(url)
     
-        # if isinstance(result, tuple):
-        #     img_urls = result
         if result:
-            # for item in result:
-                all_image_urls.append(result)
+            all_image_urls.append(result)
     print("printing all urls:")
     print(all_image_urls)
 
     return all_image_urls
-
 
 
 def get_filtered_list(item_list):
@@ -267,7 +265,6 @@ def get_filtered_list(item_list):
     filtered_list=[]
 
     for item in item_list:
-
         # Process the text with spaCy
         doc = nlp(item)
 
@@ -283,20 +280,16 @@ def get_filtered_list(item_list):
     return filtered_list
 
 
-
 from collections import defaultdict
 import nltk
 from nltk.tokenize import word_tokenize
 from collections import defaultdict
 from urllib.parse import quote
-# from filter_stopwords import filtered_list
-# from flipkart_links import generate_flipkart_url
 
 
 def generate_flipkart_url(search_query, filters):
     base_url = "https://www.flipkart.com/search?q="
     search_query = quote(search_query)
-    # search_query = search_query.replace(" ", "%20")
     url = f"{base_url}{search_query}&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=off&as=off"
 
     if filters:
@@ -323,7 +316,6 @@ def capitalize_first_letter(keyword_list):
         capitalized_keyword = keyword.capitalize() if isinstance(keyword, str) else keyword
         capitalized_keywords.append(capitalized_keyword)
     return capitalized_keywords
-
 
 
 def generate_urls(filtered_list):
@@ -375,7 +367,6 @@ def generate_urls(filtered_list):
 def get_answer_bard(prompt):
 
     prompt+=", suggest a single outfit specifically with details in 4 points as top, bottom, shoes and accessories. Do not give additional tips and information. Keep your response very short within 100 words."
-    # result = bard.get_answer(prompt)
 
     print("prompt:")
     print(prompt)
@@ -387,21 +378,16 @@ def get_answer_bard(prompt):
     print(result)
     bard_response = result
 
-
     output = ""
     lines = bard_response.split('\n\n')[:3]
 
-
-
     for line in lines:
         line = line.strip()
-        # if line.startswith('*') or line == "":
         output += line + '\n\n'
 
     bard_response=output
     print("bard response output:")
     print(output)
-
 
     item_list = []
     lines = output.split('\n')
@@ -411,7 +397,6 @@ def get_answer_bard(prompt):
         print("printing line:")
         print(line)
         if line.startswith('*'):
-            # output.append(line)
             item_parts = line.split(':**')
             if len(item_parts) > 1:
                 item_list.append(item_parts[1].strip())
@@ -425,7 +410,6 @@ def get_answer_bard(prompt):
     all_generated_urls=generate_urls(filtered_list)
 
     product_urls=identify_image_class(all_generated_urls)
-
 
     lines = bard_response.split("\n")
     filtered_lines = [line for line in lines if not line.startswith("[Image")]
@@ -441,10 +425,10 @@ def get_answer_bard(prompt):
         if line.startswith('*'):
             ind+=1
             new_resp+=line+'\n <div class="flex m-2">'
-            for url in product_urls[ind]:
-                new_resp+='<img class="m-2" src=\"'+url+'\" width="200" height="600">'
+            if ind < len(product_urls):
+                for url in product_urls[ind]:
+                    new_resp+='<img class="m-2" src=\"'+url+'\" width="200" height="600">'
             new_resp+='</div>\n'
-
 
         else:
             new_resp+=line+'\n'
@@ -453,83 +437,49 @@ def get_answer_bard(prompt):
     return new_resp
 
 
-
-
 @app.route("/api/recommendations", methods=["POST"])
 @cross_origin(origin="*")
 def get_recommendations():
     user_message = request.json["userMessage"]
     global count
 
-
     if user_message:
-
-
 
         if to_bard==False:
                 
-                    count+=1
-                    if count==1:
-                        global initial_prompt
-                        initial_prompt=user_message
-                    resp=check_prompt(user_message)
-                    if to_bard==True:
-                        
-                        occasion2=" ".join(occasion)
-                        print("Finally...")
-                        print("detected_occasion: "+occasion2)
-                        print("detected_age: "+age)
-                        print("detected_gender: "+gender)
-                        print("detected_location: "+location)
-                        user_message=initial_prompt+" I am "+age+" years old "+gender+" from "+location+", occasion is "+occasion2+", my colour preferences are "+colours
+            count+=1
+            if count==1:
+                global initial_prompt
+                initial_prompt=user_message
+            resp=check_prompt(user_message)
+            if to_bard==True:
+                
+                occasion2=" ".join(occasion)
+                print("Finally...")
+                print("detected_occasion: "+occasion2)
+                print("detected_age: "+age)
+                print("detected_gender: "+gender)
+                print("detected_location: "+location)
+                user_message=initial_prompt+" I am "+age+" years old "+gender+" from "+location+", occasion is "+occasion2+", my colour preferences are "+colours
 
-                    else:
-                         bot_response=resp
+            else:
+                bot_response=resp
                 
                 
         if to_bard==True:
-                bot_response=get_answer_bard(user_message)
+            bot_response=get_answer_bard(user_message)
         
     
     return jsonify({"bot_response": bot_response})
 
 
-
-
-
-
-# @app.route('/fresh-chat', methods=['POST'])
-# def fresh_chat():
-#     print("creating new conversation thread with bard")
-    
-#     # Additional cleanup or shutdown logic can be added here.
-    
-#     # Restart the server by using sys.executable to run the current Python script.
-#     # os.execl(sys.executable, sys.executable, *sys.argv)
-#     global bard
-#     bard = Bard(token=token)
-#     global to_bard
-#     to_bard=False
-#     global count
-#     count=0
-
-
-#     global occasion
-#     occasion=[]
-#     global required
-#     required=["occasion","location","gender","age"]
-#     global location
-#     location=None
-#     global gender
-#     gender=None
-#     global age
-#     age=None
-
-#     return jsonify({"bot_response": "bot_response"})
-   
-    
 if __name__ == '__main__':
-    app.run(debug=True)
-    # This line specifies to run the app on all available network interfaces
-    # on port 8080
-    # app.run(host='0.0.0.0', port=10000)
+    # Get port from environment variable (Render sets this)
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Use 0.0.0.0 to allow external connections
+    # Set debug=False for production
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    print(f"Starting Flask app on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
