@@ -109,7 +109,7 @@ function ChatBox() {
             {/* Hamburger Menu Button */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="fixed top-4 left-4 z-50 md:hidden p-3 rounded-lg transition-all hover:scale-110"
+              className="fixed top-4 left-4 z-50 p-3 rounded-lg transition-all hover:scale-110"
               style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)' }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
