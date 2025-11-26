@@ -98,15 +98,15 @@ function ChatBox() {
   }
 
   return (
-    <div>
-      <div className="container mx-auto bg-gray-200">
-        <div className=" h-screen">
-          <div className="flex border border-yellow-300 rounded shadow-lg h-full">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+      <div className="container mx-auto">
+        <div className="h-screen p-4">
+          <div className="flex rounded-xl shadow-2xl h-full overflow-hidden" style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
             {/* <!-- Left --> */}
-            <div className="w-[20%] border flex flex-col bg-white">
+            <div className="w-[20%] hidden md:flex flex-col" style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(0, 0, 0, 0.1)' }}>
               {/* <!-- Header --> */}
-              <div className="py-2 px-3 mx-2 border-b border-gray-400 bg-white flex flex-row justify-between items-center">
-                <h1 className="mx-auto pt-2 text-2xl ">Chats</h1>
+              <div className="py-4 px-4 border-b border-gray-200" style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)' }}>
+                <h1 className="text-2xl font-bold text-white text-center">Chats</h1>
               </div>
 
               {/* <!-- Contacts --> */}
@@ -137,12 +137,13 @@ function ChatBox() {
             </div>
 
             {/* <!-- Right --> */}
-            <div className="w-[80%] border-2  flex flex-col">
+            <div className="flex-1 md:w-[80%] w-full flex flex-col" style={{ background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(10px)' }}>
               {/* <!-- Header --> */}
-              <div className="py-2 px-3 bg-white flex flex-row justify-between items-center">
+              <div className="py-4 px-6 flex flex-row justify-between items-center shadow-lg" style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)' }}>
                 <div className="flex items-center">
-                  <div className="ml-4">
-                    <p className="py-2 text-2xl">Test Conversation 1</p>
+                  <div>
+                    <p className="text-2xl font-bold text-white">Fashion Outfit Assistant</p>
+                    <p className="text-sm text-indigo-100">AI-powered style recommendations</p>
                   </div>
                 </div>
               </div>
@@ -203,7 +204,7 @@ function ChatBox() {
               </> */}
               {/* <!-- Messages --> */}
 
-              <div className="flex-1 overflow-auto bg-gray-200">
+              <div className="flex-1 overflow-auto p-4" style={{ background: 'linear-gradient(to bottom, rgba(249, 250, 251, 0.3), rgba(243, 244, 246, 0.5))' }}>
                 <>
                   <div className="py-2 px-3">
                     <div className={"flex mb-2"}>
@@ -270,9 +271,15 @@ function ChatBox() {
                       <div
                         className={
                           message.isUser
-                            ? "rounded py-2 px-3 bg-blue-700 text-white"
-                            : "rounded py-2 px-3 bg-gray-50"
+                            ? "rounded-2xl py-3 px-4 text-white shadow-lg"
+                            : "rounded-2xl py-3 px-4 bg-white shadow border border-gray-100"
                         }
+                        style={message.isUser ? {
+                          background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                          animation: 'slideInRight 0.3s ease-out'
+                        } : {
+                          animation: 'slideInLeft 0.3s ease-out'
+                        }}
                       >
                         {message.loading ? (
                           <Loading />
@@ -299,11 +306,12 @@ function ChatBox() {
               </div>
 
               {/* <!-- Input --> */}
-              <div className="bg-white rounded-lg whitespace-nowrap box-border outline-none m-6 px-1 py-1 flex items-center">
+              <div className="rounded-2xl whitespace-nowrap box-border outline-none m-4 md:m-6 px-3 py-2 flex items-center shadow-lg border" style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)', borderColor: 'rgba(0, 0, 0, 0.1)' }}>
                 <div className="flex-1 mx-4">
                   <input
-                    className="w-full  px-2 py-2  whitespace-nowrap box-border outline-none              "
+                    className="w-full px-3 py-2 whitespace-nowrap box-border outline-none bg-transparent"
                     type="text"
+                    placeholder="Type your message..."
                     value={isRecording ? transcript : input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -317,8 +325,9 @@ function ChatBox() {
 
                 <div className="items-center flex">
                   <button
-                    className="p-2"
+                    className="p-2 rounded-full transition-all hover:bg-gray-100"
                     onClick={isRecording ? stopRecording : startRecording}
+                    style={isRecording ? { animation: 'pulse 1.5s ease-in-out infinite' } : {}}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -344,7 +353,8 @@ function ChatBox() {
                   </button>
                   <button
                     onClick={sendMessage}
-                    className="p-2.5 rounded-xl mx-1 bg-blue-700"
+                    className="p-3 rounded-xl ml-2 transition-all hover:shadow-lg"
+                    style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)' }}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
