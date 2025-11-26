@@ -46,19 +46,5 @@ services:
     
     # Custom domains (optional)
     # domains:
-    #   - your-custom-domain.com
-
-# Optional: Add a cron job for periodic tasks
-# - type: cron
-#   name: cleanup-job
-#   env: python
-#   schedule: "0 0 * * *"  # Daily at midnight
-#   buildCommand: cd server && pip install -r requirements.txt
-#   startCommand: cd server && python cleanup_script.py
-
-# Optional: Add a background worker
-# - type: worker
-#   name: image-processor
-#   env: python
 #   buildCommand: cd server && pip install -r requirements.txt
 #   startCommand: cd server && python worker.py
