@@ -26,10 +26,13 @@ function ChatBox() {
         ...messages,
         { text: sample ? textbtn : input, isUser: true, loading: false },
         { text: "generating...", isUser: false, loading: true },
-      ]);
+      ])
+
+      // Use environment variable for API URL or fallback to localhost
+      const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000";
 
       const response = await axios.post(
-        "http://127.0.0.1:5000/api/recommendations",
+        `${API_URL}/api/recommendations`,
         {
           userMessage: sample ? textbtn : input,
         }
