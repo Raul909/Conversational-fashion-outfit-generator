@@ -5,10 +5,13 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 // import { Intro } from "./Intro";
 import { Loading } from "./Loading";
+import DarkModeToggle from "./DarkModeToggle";
 
 function ChatBox() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   // const [sample, setSample] = useState(false);
   // const [input, setInput] = useState("");
 
@@ -98,12 +101,27 @@ function ChatBox() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+    <div className="min-h-screen" style={{ background: darkMode ? 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+      <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
       <div className="container mx-auto">
         <div className="h-screen p-4">
-          <div className="flex rounded-xl shadow-2xl h-full overflow-hidden" style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
-            {/* <!-- Left --> */}
-            <div className="w-[20%] hidden md:flex flex-col" style={{ background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(0, 0, 0, 0.1)' }}>
+          <div className="flex rounded-xl shadow-2xl h-full overflow-hidden" style={{ background: darkMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(25px)', border: darkMode ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.3)' }}>
+            {/* Hamburger Menu Button */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="fixed top-4 left-4 z-50 md:hidden p-3 rounded-lg transition-all hover:scale-110"
+              style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)' }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+
+            {/* <!-- Left Sidebar --> */}
+            <div
+              className={`w-[20%] md:flex flex-col transition-all duration-300 ${sidebarOpen ? 'flex' : 'hidden md:flex'}`}
+              style={{ background: darkMode ? 'rgba(20, 20, 40, 0.7)' : 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(25px)', borderRight: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.2)' }}
+            >
               {/* <!-- Header --> */}
               <div className="py-4 px-4 border-b border-gray-200" style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)' }}>
                 <h1 className="text-2xl font-bold text-white text-center">Chats</h1>
@@ -137,7 +155,7 @@ function ChatBox() {
             </div>
 
             {/* <!-- Right --> */}
-            <div className="flex-1 md:w-[80%] w-full flex flex-col" style={{ background: 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(10px)' }}>
+            <div className="flex-1 md:w-[80%] w-full flex flex-col" style={{ background: darkMode ? 'rgba(15, 15, 35, 0.4)' : 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)' }}>
               {/* <!-- Header --> */}
               <div className="py-4 px-6 flex flex-row justify-between items-center shadow-lg" style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)' }}>
                 <div className="flex items-center">
@@ -204,7 +222,7 @@ function ChatBox() {
               </> */}
               {/* <!-- Messages --> */}
 
-              <div className="flex-1 overflow-auto p-4" style={{ background: 'linear-gradient(to bottom, rgba(249, 250, 251, 0.3), rgba(243, 244, 246, 0.5))' }}>
+              <div className="flex-1 overflow-auto p-4" style={{ background: darkMode ? 'rgba(5, 5, 20, 0.2)' : 'rgba(249, 250, 251, 0.15)' }}>
                 <>
                   <div className="py-2 px-3">
                     <div className={"flex mb-2"}>
@@ -306,10 +324,11 @@ function ChatBox() {
               </div>
 
               {/* <!-- Input --> */}
-              <div className="rounded-2xl whitespace-nowrap box-border outline-none m-4 md:m-6 px-3 py-2 flex items-center shadow-lg border" style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)', borderColor: 'rgba(0, 0, 0, 0.1)' }}>
+              <div className="rounded-2xl whitespace-nowrap box-border outline-none m4 md:m-6 px-3 py-2 flex items-center shadow-lg border" style={{ background: darkMode ? 'rgba(30, 30, 50, 0.6)' : 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(15px)', borderColor: darkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.4)' }}>
                 <div className="flex-1 mx-4">
                   <input
                     className="w-full px-3 py-2 whitespace-nowrap box-border outline-none bg-transparent"
+                    style={{ color: darkMode ? '#fff' : '#000' }}
                     type="text"
                     placeholder="Type your message..."
                     value={isRecording ? transcript : input}
