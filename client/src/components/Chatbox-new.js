@@ -61,9 +61,10 @@ function ChatBox() {
 
   const createNewChat = async () => {
     setMessages([]);
-    const response = await axios.post("http://127.0.0.1:5000/fresh-chat", {
-      userMessage: null,
-    });
+    // Fresh chat endpoint is currently disabled on backend
+    // await axios.post("http://127.0.0.1:5000/fresh-chat", {
+    //   userMessage: null,
+    // });
   };
   const messagesEndRef = useRef(null);
 
