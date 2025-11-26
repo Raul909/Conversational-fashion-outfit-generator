@@ -10,7 +10,7 @@ import DarkModeToggle from "./DarkModeToggle";
 function ChatBox() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   // const [sample, setSample] = useState(false);
   // const [input, setInput] = useState("");
