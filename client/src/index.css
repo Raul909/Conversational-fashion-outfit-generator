@@ -11,11 +11,11 @@
   --primary-gradient-end: #7C3AED;
   --primary-dark: #3730A3;
   --primary-light: #818CF8;
-  
+
   /* Secondary Colors */
   --secondary: #EC4899;
   --secondary-light: #F472B6;
-  
+
   /* Neutral Colors */
   --bg-primary: #F9FAFB;
   --bg-secondary: #F3F4F6;
@@ -23,29 +23,29 @@
   --text-primary: #111827;
   --text-secondary: #6B7280;
   --border-color: #E5E7EB;
-  
+
   /* Chat Colors */
   --user-message-bg: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
   --bot-message-bg: #FFFFFF;
   --message-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  
+
   /* Glass Effect */
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.18);
-  
+
   /* Spacing */
   --spacing-xs: 0.5rem;
   --spacing-sm: 0.75rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
-  
+
   /* Border Radius */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  
+
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s ease;
@@ -53,26 +53,6 @@
 }
 
 /* ============================================
-   BASE STYLES
-   ============================================ */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-attachment: fixed;
-}
-
-/* ============================================
-   SMOOTH SCROLLING
-   ============================================ */
 html {
   scroll-behavior: smooth;
 }
@@ -105,6 +85,7 @@ html {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -116,6 +97,7 @@ html {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -128,6 +110,7 @@ html {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -140,6 +123,7 @@ html {
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -148,10 +132,13 @@ html {
 
 /* Pulse Animation for Active States */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.8;
     transform: scale(1.05);
@@ -160,9 +147,13 @@ html {
 
 /* Bounce Animation for Loading Dots */
 @keyframes bounce {
-  0%, 80%, 100% {
+
+  0%,
+  80%,
+  100% {
     transform: translateY(0);
   }
+
   40% {
     transform: translateY(-10px);
   }
@@ -173,6 +164,7 @@ html {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -183,6 +175,7 @@ html {
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
@@ -292,7 +285,8 @@ html {
   cursor: pointer;
   transition: all var(--transition-normal);
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-  min-height: 44px; /* Touch-friendly */
+  min-height: 44px;
+  /* Touch-friendly */
 }
 
 .btn-primary:hover {
@@ -433,32 +427,34 @@ html {
     --spacing-md: 0.75rem;
     --spacing-lg: 1rem;
   }
-  
+
   .message-user,
   .message-bot {
     max-width: 90%;
     font-size: 0.9rem;
   }
-  
+
   .sample-button {
     font-size: 0.8rem;
     padding: var(--spacing-xs) var(--spacing-sm);
   }
-  
+
   /* Stack buttons vertically on mobile */
   .button-group {
     flex-direction: column;
     gap: var(--spacing-sm);
   }
-  
+
   /* Full width input on mobile */
   .chat-input {
-    font-size: 16px; /* Prevents zoom on iOS */
+    font-size: 16px;
+    /* Prevents zoom on iOS */
   }
 }
 
 /* Tablet Styles (640px - 1024px) */
 @media (min-width: 640px) and (max-width: 1024px) {
+
   .message-user,
   .message-bot {
     max-width: 85%;
@@ -471,25 +467,26 @@ html {
 
 /* Increase touch targets on touch devices */
 @media (hover: none) and (pointer: coarse) {
+
   .btn-primary,
   .btn-secondary,
   .sample-button {
     min-height: 48px;
     min-width: 48px;
   }
-  
+
   .voice-btn {
     width: 56px;
     height: 56px;
   }
-  
+
   /* Remove hover effects on touch devices */
   .btn-primary:hover,
   .btn-secondary:hover,
   .sample-button:hover {
     transform: none;
   }
-  
+
   /* But keep active state */
   .btn-primary:active,
   .btn-secondary:active,
@@ -510,6 +507,7 @@ html {
 
 /* Reduced Motion for Users Who Prefer It */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -526,7 +524,7 @@ html {
   body {
     background: white;
   }
-  
+
   .glass-panel,
   .glass-effect {
     background: white;
