@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import os
-from dotenv.main import load_dotenv
+from pathlib import Path
+from dotenv import load_dotenv
 import google.generativeai as genai
 # from image_links import identify_image_class
 
@@ -17,18 +18,17 @@ import string
 
 from flask_cors import CORS, cross_origin
 
+# Get base directory for resolving paths
+BASE_DIR = Path(__file__).resolve().parent
 
-# # Load environment variables
-# load_dotenv()
+# Load environment variables (works in development with .env file)
+if os.path.exists('.env'):
+    load_dotenv()
 
-# # Access environment variables
-# token = os.environ.get("BARD_API_KEY")
-
-# # Create a Bard instance
-# bard = Bard(token=token)
-
-# Access environment variables
+# Access environment variables with error handling
 token = os.environ.get("GEMINI_KEY")
+if not token:
+    raise ValueError("GEMINI_KEY environment variable is required!")
 
 genai.configure(api_key=token)
 
@@ -72,7 +72,11 @@ convo = model.start_chat(history=[
 
 # Create a Flask app instance
 app = Flask(__name__)
-CORS(app)
+
+# Configure CORS for production
+# Get allowed origins from environment or default to localhost
+ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS}})
 
 
 
@@ -98,9 +102,14 @@ colours = " ".join(colourset)
 # required=[]
 
 def get_location(prompt):
+    # Use cross-platform path
+    csv_file_path = BASE_DIR / 'data' / 'indian_places.csv'
     
-
-    csv_file_path = '.\data\indian_places.csv'
+    # Verify file exists
+    if not csv_file_path.exists():
+        print(f"Warning: {csv_file_path} not found!")
+        return None
+    
     # Load the specific CSV file
     data = pd.read_csv(csv_file_path, header=None, names=['place_name'])
 
@@ -127,7 +136,15 @@ def check_prompt(prompt):
     global required
     print("checking...")
 
-    nlp1 = spacy.load(r"./models/ner_model_occasion/output/model-best") #load the best model
+    # Use cross-platform paths for model loading
+    model_occasion_path = BASE_DIR / 'models' / 'ner_model_occasion' / 'output' / 'model-best'
+    
+    # Check if model exists
+    if not model_occasion_path.exists():
+        print(f"Warning: Model not found at {model_occasion_path}")
+        # You might want to download or handle this differently
+    
+    nlp1 = spacy.load(str(model_occasion_path))  # load the best model
     nlp2 = spacy.load("en_core_web_md")
 
     # occasion=[]
@@ -205,32 +222,36 @@ def check_prompt(prompt):
 
 
 def find_image_class(url):
-    response = requests.get(url,verify=False)
-    
-    if response.status_code == 200:
-        html_content = response.text
-    else:
-        return None
-    
-    soup = BeautifulSoup(html_content, 'html.parser')
-    img_tags = soup.find_all('img', class_='_2r_T1I')
-    img_tags2 = soup.find_all('img', class_='_396cs4')
-    img_urls=[]  
+    try:
+        response = requests.get(url, verify=False, timeout=10)
+        
+        if response.status_code == 200:
+            html_content = response.text
+        else:
+            return None
+        
+        soup = BeautifulSoup(html_content, 'html.parser')
+        img_tags = soup.find_all('img', class_='_2r_T1I')
+        img_tags2 = soup.find_all('img', class_='_396cs4')
+        img_urls=[]  
 
-    if img_tags:
-          
-            img_urls = [img['src'] for img in img_tags[:5]]  # Get top 5 image URLs
+        if img_tags:
+            
+                img_urls = [img['src'] for img in img_tags[:5]]  # Get top 5 image URLs
+
+                for image in img_urls:
+                    print(image)
+        elif img_tags2:
+            img_urls = [img['src'] for img in img_tags2[:5]]  # Get top 5 image URLs
 
             for image in img_urls:
-                 print(image)
-    elif img_tags2:
-        img_urls = [img['src'] for img in img_tags2[:5]]  # Get top 5 image URLs
-
-        for image in img_urls:
-                 print(image)
-    print("printing each result: ")   
-    print(img_urls)
-    return img_urls
+                    print(image)
+        print("printing each result: ")   
+        print(img_urls)
+        return img_urls
+    except Exception as e:
+        print(f"Error scraping {url}: {e}")
+        return []
 
 
 def identify_image_class(all_generated_urls):
@@ -441,8 +462,9 @@ def get_answer_bard(prompt):
         if line.startswith('*'):
             ind+=1
             new_resp+=line+'\n <div class="flex m-2">'
-            for url in product_urls[ind]:
-                new_resp+='<img class="m-2" src=\"'+url+'\" width="200" height="600">'
+            if ind < len(product_urls):
+                for url in product_urls[ind]:
+                    new_resp+='<img class="m-2" src=\"'+url+'\" width="200" height="600">'
             new_resp+='</div>\n'
 
 
@@ -529,7 +551,12 @@ def get_recommendations():
    
     
 if __name__ == '__main__':
-    app.run(debug=True)
-    # This line specifies to run the app on all available network interfaces
-    # on port 8080
-    # app.run(host='0.0.0.0', port=10000)
+    # Get port from environment variable (Render sets this)
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Use 0.0.0.0 to allow external connections
+    # Set debug=False for production
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    print(f"Starting Flask app on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
