@@ -18,7 +18,11 @@ services:
       python -m spacy download en_core_web_sm
     
     # Start command - runs to start your application
+    # Using python directly (simpler) - for production, use gunicorn
     startCommand: cd server && python main_app.py
+    
+    # Alternative with gunicorn (production-ready):
+    # startCommand: cd server && gunicorn --bind 0.0.0.0:$PORT main_app:app
     
     # Environment variables
     envVars:
