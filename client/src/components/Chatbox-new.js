@@ -98,23 +98,23 @@ function ChatBox() {
   }
 
   return (
-    <div>
-      <div className="container mx-auto bg-gray-200">
-        <div className=" h-screen">
-          <div className="flex border border-yellow-300 rounded shadow-lg h-full">
-            {/* <!-- Left --> */}
-            <div className="w-[20%] border flex flex-col bg-white">
+    <div className="chat-container animate-fade-in">
+      <div className="container mx-auto">
+        <div className="h-screen">
+          <div className="flex rounded-xl shadow-2xl h-full overflow-hidden glass-panel">
+            {/* <!-- Sidebar --> */}
+            <div className="w-[20%] hidden md:flex flex-col bg-white/80 backdrop-blur-lg border-r border-gray-200">
               {/* <!-- Header --> */}
-              <div className="py-2 px-3 mx-2 border-b border-gray-400 bg-white flex flex-row justify-between items-center">
-                <h1 className="mx-auto pt-2 text-2xl ">Chats</h1>
+              <div className="py-4 px-4 border-b border-gray-200 bg-gradient-to-r from-indigo-500 to-purple-600">
+                <h1 className="text-2xl font-bold text-white text-center">Chats</h1>
               </div>
 
               {/* <!-- Contacts --> */}
-              <div className="bg-gray-100 flex-1 overflow-auto">
-                <div className="bg-white px-3 flex items-center hover:bg-gray-200 cursor-pointer">
-                  <div className="ml-4 flex-1  py-4">
-                    <div className="flex  justify-between">
-                      <h1 className="  ">Test Conversation 1</h1>
+              <div className="flex-1 overflow-auto">
+                <div className="bg-white/50 px-4 py-3 flex items-center hover:bg-white/80 cursor-pointer transition-smooth">
+                  <div className="flex-1">
+                    <div className="flex justify-between">
+                      <h1 className="font-medium text-gray-700">Test Conversation 1</h1>
                     </div>
                   </div>
                 </div>
@@ -129,20 +129,22 @@ function ChatBox() {
                 </div> */}
                 <button
                   onClick={createNewChat}
-                  className="bg-blue-700 overflow-hidden truncate flex justify-center text-white px-10 py-2 mx-10 my-7 border-none cursor-pointer rounded-[10px] text-[16px] absolute bottom-0"
+                  className="btn-primary w-full mx-4 my-6 absolute bottom-0 left-0 right-0"
+                  style={{ width: 'calc(100% - 2rem)' }}
                 >
-                  New Conversation
+                  + New Conversation
                 </button>
               </div>
             </div>
 
-            {/* <!-- Right --> */}
-            <div className="w-[80%] border-2  flex flex-col">
+            {/* <!-- Chat Area --> */}
+            <div className="flex-1 md:w-[80%] w-full flex flex-col bg-white/60 backdrop-blur-sm">
               {/* <!-- Header --> */}
-              <div className="py-2 px-3 bg-white flex flex-row justify-between items-center">
+              <div className="py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 flex flex-row justify-between items-center shadow-lg">
                 <div className="flex items-center">
-                  <div className="ml-4">
-                    <p className="py-2 text-2xl">Test Conversation 1</p>
+                  <div>
+                    <p className="text-2xl font-bold text-white">Fashion Outfit Assistant</p>
+                    <p className="text-sm text-indigo-100">AI-powered style recommendations</p>
                   </div>
                 </div>
               </div>
@@ -199,85 +201,6 @@ function ChatBox() {
                       </p>
                     </button>
                   </div>
-                </div>
-              </> */}
-              {/* <!-- Messages --> */}
-
-              <div className="flex-1 overflow-auto bg-gray-200">
-                <>
-                  <div className="py-2 px-3">
-                    <div className={"flex mb-2"}>
-                      <div className={"rounded py-2 px-3 bg-gray-50"}>
-                        <p className="text-sm ">
-                          <p>
-                            Welcome to the Conversational Fashion Outfit
-                            Generator! I'm here to assist you in finding the
-                            perfect outfit for the day. Based on your input,
-                            I'll suggest outfit options that match your
-                            preferences. Let's get started!
-                          </p>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="px-3">
-                    <div className={"flex mb-2"}>
-                      <button
-                        onClick={() => {
-                          // setSample(true);
-                          sendMessage(
-                            "What should I wear for my job interview?"
-                          );
-                        }}
-                        className="border-2 border-blue-200 rounded-2xl py-1 px-2 bg-blue-100 mr-2 text-sm"
-                      >
-                        What should I wear for my job interview?
-                      </button>
-                      <button
-                        onClick={() => {
-                          // setSample(true);
-                          sendMessage("Suggest me an outfit for Diwali.");
-                        }}
-                        className="border-2 border-blue-200 rounded-2xl py-1 px-2 bg-blue-100 mr-2 text-sm"
-                      >
-                        <p className=" ">Suggest me an outfit for Diwali.</p>
-                      </button>
-                      <button
-                        onClick={() => {
-                          // setSample(true);
-                          sendMessage(
-                            "Give me an outfit for a girls' night out."
-                          );
-                        }}
-                        className="border-2 border-blue-200 rounded-2xl py-1 px-2 bg-blue-100 mr-2 text-sm"
-                      >
-                        <p className="text-sm ">
-                          Give me an outfit for a girls' night out.
-                        </p>
-                      </button>
-                    </div>
-                  </div>
-                </>
-
-                <div className="py-2 px-3">
-                  {messages.map((message, index) => (
-                    <div
-                      key={index}
-                      className={
-                        message.isUser ? "flex justify-end mb-2" : "flex mb-2"
-                      }
-                    >
-                      <div
-                        className={
-                          message.isUser
-                            ? "rounded py-2 px-3 bg-blue-700 text-white"
-                            : "rounded py-2 px-3 bg-gray-50"
-                        }
-                      >
-                        {message.loading ? (
-                          <Loading />
-                        ) : (
-                          <>
                             <p className="text-sm ">
                               {message.text.split("\n").map((i) => {
                                 return (
