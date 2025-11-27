@@ -145,7 +145,7 @@ def check_prompt(prompt):
         # You might want to download or handle this differently
     
     nlp1 = spacy.load(str(model_occasion_path))  # load the best model
-    nlp2 = spacy.load("en_core_web_md")
+    nlp2 = spacy.load("en_core_web_sm")  # Using small model to fit in 512MB
 
     # occasion=[]
     # location=[]
