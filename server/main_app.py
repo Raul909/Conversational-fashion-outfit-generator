@@ -417,22 +417,20 @@ def generate_urls(filtered_list):
 def get_answer_bard(prompt):
     try:
         prompt+=", suggest a single outfit specifically with details in 4 points as top, bottom, shoes and accessories. Do not give additional tips and information. Keep your response very short within 100 words."
-    # result = bard.get_answer(prompt)
+        # result = bard.get_answer(prompt)
 
-    print("prompt:")
-    print(prompt)
+        print("prompt:")
+        print(prompt)
 
-    convo.send_message(prompt)
-    result=convo.last.text
+        convo.send_message(prompt)
+        result=convo.last.text
+
+        print("gemini response:")
+        print(result)
+        bard_response = result
     except Exception as e:
         print(f"Error calling Gemini: {e}")
         return f"Sorry, I encountered an error. Please try again."
-
-    print("gemini response:")
-    print(result)
-    bard_response = result
-
-
     output = ""
     lines = bard_response.split('\n\n')[:3]
 
