@@ -59,7 +59,7 @@ safety_settings = [
   },
 ]
 
-model = genai.GenerativeModel(model_name="gemini-1.5-flash",  # Updated to current model name
+model = genai.GenerativeModel(model_name="gemini-pro",  # Using Gemini Pro model (standard name for Google AI Studio)
                               generation_config=generation_config,
                               safety_settings=safety_settings)
 
