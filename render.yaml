@@ -33,7 +33,7 @@ services:
         sync: false  # This must be set manually in Render dashboard
       
       - key: ALLOWED_ORIGINS
-        value: http://localhost:3000  # Update with your frontend URL after deployment
+        value: http://localhost:3000,https://cfog.netlify.app  # Include both local dev and production frontend
       
       - key: FLASK_DEBUG
         value: False

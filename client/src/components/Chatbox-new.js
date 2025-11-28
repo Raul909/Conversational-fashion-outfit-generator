@@ -103,14 +103,15 @@ function ChatBox() {
   return (
     <div className="min-h-screen" style={{ background: darkMode ? 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
       <DarkModeToggle darkMode={darkMode} setDarkMode={setDarkMode} />
-      <div className="container mx-auto">
-        <div className="h-screen p-4">
+      <div className="container mx-auto p-0">
+        <div className="h-screen md:p-4 p-2">
           <div className="flex rounded-xl shadow-2xl h-full overflow-hidden" style={{ background: darkMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(25px)', border: darkMode ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.3)' }}>
             {/* Hamburger Menu Button */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="fixed top-4 left-4 z-50 p-3 rounded-lg transition-all hover:scale-110"
-              style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)' }}
+              className="fixed top-4 left-4 z-50 p-3 rounded-lg transition-all hover:scale-110 active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)', minWidth: '48px', minHeight: '48px', touchAction: 'manipulation' }}
+              aria-label="Toggle sidebar"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -119,8 +120,9 @@ function ChatBox() {
 
             {/* <!-- Left Sidebar --> */}
             <div
-              className={`w-[20%] md:flex flex-col transition-all duration-300 ${sidebarOpen ? 'flex' : 'hidden md:flex'}`}
-              style={{ background: darkMode ? 'rgba(20, 20, 40, 0.7)' : 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(25px)', borderRight: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.2)' }}
+              className={`${sidebarOpen ? 'fixed inset-0 z-40 md:relative md:z-auto' : 'hidden'
+                } md:w-[20%] md:flex flex-col transition-all duration-300`}
+              style={{ background: darkMode ? 'rgba(20, 20, 40, 0.95)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(25px)', borderRight: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.2)' }}
             >
               {/* <!-- Header --> */}
               <div className="py-4 px-4 border-b border-gray-200" style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)' }}>
@@ -146,8 +148,13 @@ function ChatBox() {
                   </div>
                 </div> */}
                 <button
-                  onClick={createNewChat}
-                  className="bg-blue-700 overflow-hidden truncate flex justify-center text-white px-10 py-2 mx-10 my-7 border-none cursor-pointer rounded-[10px] text-[16px] absolute bottom-0"
+                  onClick={() => {
+                    createNewChat();
+                    // Close sidebar on mobile after action
+                    if (window.innerWidth < 768) setSidebarOpen(false);
+                  }}
+                  className="bg-blue-700 overflow-hidden truncate flex justify-center text-white px-6 py-3 mx-4 my-7 border-none cursor-pointer rounded-[10px] text-[16px] font-semibold hover:bg-blue-800 transition-all active:scale-95"
+                  style={{ minHeight: '48px', touchAction: 'manipulation' }}
                 >
                   New Conversation
                 </button>
@@ -324,11 +331,11 @@ function ChatBox() {
               </div>
 
               {/* <!-- Input --> */}
-              <div className="rounded-2xl whitespace-nowrap box-border outline-none m4 md:m-6 px-3 py-2 flex items-center shadow-lg border" style={{ background: darkMode ? 'rgba(30, 30, 50, 0.6)' : 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(15px)', borderColor: darkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.4)' }}>
-                <div className="flex-1 mx-4">
+              <div className="rounded-2xl whitespace-nowrap box-border outline-none m-2 md:m-6 px-2 md:px-3 py-2 flex items-center shadow-lg border" style={{ background: darkMode ? 'rgba(30, 30, 50, 0.6)' : 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(15px)', borderColor: darkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.4)' }}>
+                <div className="flex-1 mx-2 md:mx-4">
                   <input
-                    className="w-full px-3 py-2 whitespace-nowrap box-border outline-none bg-transparent"
-                    style={{ color: darkMode ? '#fff' : '#000' }}
+                    className="w-full px-2 md:px-3 py-2 whitespace-nowrap box-border outline-none bg-transparent"
+                    style={{ color: darkMode ? '#fff' : '#000', fontSize: '16px', minHeight: '44px', touchAction: 'manipulation' }}
                     type="text"
                     placeholder="Type your message..."
                     value={isRecording ? transcript : input}
@@ -344,9 +351,10 @@ function ChatBox() {
 
                 <div className="items-center flex">
                   <button
-                    className="p-2 rounded-full transition-all hover:bg-gray-100"
+                    className="p-2 rounded-full transition-all hover:bg-gray-100 active:scale-95"
+                    style={{ minWidth: '44px', minHeight: '44px', touchAction: 'manipulation' }}
                     onClick={isRecording ? stopRecording : startRecording}
-                    style={isRecording ? { animation: 'pulse 1.5s ease-in-out infinite' } : {}}
+                    aria-label={isRecording ? "Stop recording" : "Start recording"}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -372,8 +380,9 @@ function ChatBox() {
                   </button>
                   <button
                     onClick={sendMessage}
-                    className="p-3 rounded-xl ml-2 transition-all hover:shadow-lg"
-                    style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)' }}
+                    className="p-3 rounded-xl ml-2 transition-all hover:shadow-lg active:scale-95"
+                    style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)', minWidth: '48px', minHeight: '48px', touchAction: 'manipulation' }}
+                    aria-label="Send message"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

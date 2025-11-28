@@ -67,20 +67,6 @@ convo = model.start_chat(history=[
 ])
 
 # convo.send_message("how is the weather?")
-# print(convo.last.text)
-
-
-# Create a Flask app instance
-app = Flask(__name__)
-
-# Configure CORS for production
-# Get allowed origins from environment or default to localhost
-ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
-CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS}})
-
-
-
-
 def bold_text(text):
     text1 = text.replace(" **", " <b>")
     text2 = text1.replace("** ", "</b> ")

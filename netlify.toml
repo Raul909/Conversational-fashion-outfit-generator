@@ -13,6 +13,9 @@
 [build.environment]
   # Node version
   NODE_VERSION = "18"
+  
+  # Backend API URL for production
+  REACT_APP_API_URL = "https://conversational-fashion-outfit-generator.onrender.com"
 
 # Redirect all requests to index.html for client-side routing
 [[redirects]]
