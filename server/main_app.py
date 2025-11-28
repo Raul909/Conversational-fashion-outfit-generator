@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 
 
 import spacy
+import warnings
 import re
 import pandas as pd
 import string
@@ -79,6 +80,30 @@ ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:3000,https
 CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS}})
 
 
+# Load spaCy models once at startup to avoid reloading and compatibility warnings
+print("Loading spaCy models...")
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=UserWarning, module="spacy")
+    
+    # Load custom occasion model
+    model_occasion_path = BASE_DIR / 'models' / 'ner_model_occasion' / 'output' / 'model-best'
+    if model_occasion_path.exists():
+        nlp_occasion = spacy.load(str(model_occasion_path))
+        print("✓ Loaded custom occasion model")
+    else:
+        nlp_occasion = None
+        print("⚠ Warning: Custom occasion model not found")
+    
+    # Load small English model
+    try:
+        nlp_small = spacy.load("en_core_web_sm")
+        print("✓ Loaded en_core_web_sm")
+    except:
+        nlp_small = None
+        print("⚠ Warning: en_core_web_sm not found")
+
+print("spaCy models loaded!\n")
+
 
 def bold_text(text):
     text1 = text.replace(" **", " <b>")
@@ -135,29 +160,24 @@ def check_prompt(prompt):
     global required
     print("checking...")
 
-    # Use cross-platform paths for model loading
-    model_occasion_path = BASE_DIR / 'models' / 'ner_model_occasion' / 'output' / 'model-best'
-    
-    # Check if model exists
-    if not model_occasion_path.exists():
-        print(f"Warning: Model not found at {model_occasion_path}")
-        # You might want to download or handle this differently
-    
-    nlp1 = spacy.load(str(model_occasion_path))  # load the best model
-    nlp2 = spacy.load("en_core_web_sm")  # Using small model to fit in 512MB
+    # Use pre-loaded models with error handling
+    try:
+        if nlp_occasion:
+            doc1 = nlp_occasion(prompt)
+            for entity in doc1.ents:
+                print("detected_occasion: ",end=" ")
+                print(entity.text, entity.label_)
+                occasion.append(entity.label_)
 
-    # occasion=[]
-    # location=[]
-    # required=[]
-
-    doc1 = nlp1(prompt) # input sample text
-
-    for entity in doc1.ents:
-        print("detected_occasion: ",end=" ")
-        print(entity.text, entity.label_)
-        occasion.append(entity.label_)
-
-    if occasion:
+            if occasion:
+                if "occasion" in required:
+                    required.remove("occasion")
+        else:
+            # Skip occasion if model not loaded
+            if "occasion" in required:
+                required.remove("occasion")
+    except Exception as e:
+        print(f"Error in occasion detection: {e}")
         if "occasion" in required:
             required.remove("occasion")
 
@@ -273,7 +293,9 @@ def identify_image_class(all_generated_urls):
 
 
 def get_filtered_list(item_list):
-    nlp = spacy.load("en_core_web_sm")
+    if nlp_small is None:
+        return item_list
+    nlp = nlp_small
 
     # Define your custom stopwords
     custom_stopwords = ['matching','complete','look']
@@ -393,8 +415,8 @@ def generate_urls(filtered_list):
 
 
 def get_answer_bard(prompt):
-
-    prompt+=", suggest a single outfit specifically with details in 4 points as top, bottom, shoes and accessories. Do not give additional tips and information. Keep your response very short within 100 words."
+    try:
+        prompt+=", suggest a single outfit specifically with details in 4 points as top, bottom, shoes and accessories. Do not give additional tips and information. Keep your response very short within 100 words."
     # result = bard.get_answer(prompt)
 
     print("prompt:")
@@ -402,6 +424,9 @@ def get_answer_bard(prompt):
 
     convo.send_message(prompt)
     result=convo.last.text
+    except Exception as e:
+        print(f"Error calling Gemini: {e}")
+        return f"Sorry, I encountered an error. Please try again."
 
     print("gemini response:")
     print(result)
