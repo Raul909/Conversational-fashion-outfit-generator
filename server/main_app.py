@@ -566,13 +566,17 @@ def get_recommendations():
                         resp=check_prompt(user_message)
                         if to_bard==True:
                             
-                            occasion2=" ".join(occasion)
+                            occasion2=" ".join(occasion) if occasion else "casual"
+                            age_str = str(age) if age else "25"
+                            gender_str = str(gender) if gender else "person"
+                            location_str = str(location) if location else "India"
+                            
                             print("Finally...")
                             print("detected_occasion: "+occasion2)
-                            print("detected_age: "+age)
-                            print("detected_gender: "+gender)
-                            print("detected_location: "+location)
-                            user_message=initial_prompt+" I am "+age+" years old "+gender+" from "+location+", occasion is "+occasion2+", my colour preferences are "+colours
+                            print("detected_age: "+age_str)
+                            print("detected_gender: "+gender_str)
+                            print("detected_location: "+location_str)
+                            user_message=initial_prompt+" I am "+age_str+" years old "+gender_str+" from "+location_str+", occasion is "+occasion2+", my colour preferences are "+colours
 
                         else:
                              bot_response=resp

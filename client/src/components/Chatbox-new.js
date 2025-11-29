@@ -25,10 +25,10 @@ function ChatBox() {
     console.log(sample);
     if (!sample) if (!input.trim()) return;
     console.log(input);
-    
+
     const messageText = sample ? textbtn : input;
     setIsLoading(true);
-    
+
     try {
       setInput("");
       setMessages([
@@ -59,7 +59,6 @@ function ChatBox() {
         const newMessages = prevMessages.slice(0, -1);
         return [
           ...newMessages,
-          { text: messageText, isUser: true, loading: false },
           { text: botResponse, isUser: false, loading: false },
         ];
       });
@@ -71,7 +70,6 @@ function ChatBox() {
         const newMessages = prevMessages.slice(0, -1);
         return [
           ...newMessages,
-          { text: messageText, isUser: true, loading: false },
           {
             text: `⚠️ ${errorMessage}. Please try again.`,
             isUser: false,
@@ -163,7 +161,7 @@ function ChatBox() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            
+
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
               <div
@@ -176,9 +174,9 @@ function ChatBox() {
             <div
               className={`${sidebarOpen ? 'fixed left-0 top-0 bottom-0 z-40 md:relative md:z-auto' : 'hidden'
                 } md:w-[20%] md:flex flex-col transition-all duration-300 w-64`}
-                style={{ 
-                background: darkMode ? 'rgba(20, 20, 40, 0.98)' : 'rgba(255, 255, 255, 0.98)', 
-                backdropFilter: 'blur(25px)', 
+              style={{
+                background: darkMode ? 'rgba(20, 20, 40, 0.98)' : 'rgba(255, 255, 255, 0.98)',
+                backdropFilter: 'blur(25px)',
                 WebkitBackdropFilter: 'blur(25px)',
                 borderRight: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.2)',
                 boxShadow: '2px 0 10px rgba(0,0,0,0.1)'
@@ -400,10 +398,10 @@ function ChatBox() {
                 <div className="flex-1 min-w-0">
                   <input
                     className="w-full px-2 md:px-3 py-2 box-border outline-none bg-transparent"
-                    style={{ 
-                      color: darkMode ? '#fff' : '#000', 
+                    style={{
+                      color: darkMode ? '#fff' : '#000',
                       fontSize: '16px', // Prevents zoom on iOS
-                      minHeight: '44px', 
+                      minHeight: '44px',
                       touchAction: 'manipulation',
                       WebkitAppearance: 'none',
                       borderRadius: '8px'
@@ -427,9 +425,9 @@ function ChatBox() {
                 <div className="items-center flex gap-1 md:gap-2 flex-shrink-0">
                   <button
                     className="p-2 md:p-2.5 rounded-full transition-all hover:bg-gray-100 active:scale-95 disabled:opacity-50"
-                    style={{ 
-                      minWidth: '44px', 
-                      minHeight: '44px', 
+                    style={{
+                      minWidth: '44px',
+                      minHeight: '44px',
                       touchAction: 'manipulation',
                       WebkitTapHighlightColor: 'transparent'
                     }}
@@ -463,10 +461,10 @@ function ChatBox() {
                     onClick={() => sendMessage()}
                     disabled={isLoading || !input.trim()}
                     className="p-2.5 md:p-3 rounded-xl transition-all hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ 
-                      background: isLoading || !input.trim() ? 'rgba(79, 70, 229, 0.5)' : 'linear-gradient(135deg, #4F46E5, #7C3AED)', 
-                      minWidth: '44px', 
-                      minHeight: '44px', 
+                    style={{
+                      background: isLoading || !input.trim() ? 'rgba(79, 70, 229, 0.5)' : 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                      minWidth: '44px',
+                      minHeight: '44px',
                       touchAction: 'manipulation',
                       WebkitTapHighlightColor: 'transparent'
                     }}
