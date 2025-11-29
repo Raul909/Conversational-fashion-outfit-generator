@@ -60,9 +60,22 @@ safety_settings = [
   },
 ]
 
-model = genai.GenerativeModel(model_name="gemini-pro",  # Using Gemini Pro model (standard name for Google AI Studio)
-                              generation_config=generation_config,
-                              safety_settings=safety_settings)
+# Try gemini-1.5-flash first (faster, cheaper), fallback to gemini-pro
+try:
+    model = genai.GenerativeModel(model_name="gemini-1.5-flash",
+                                  generation_config=generation_config,
+                                  safety_settings=safety_settings)
+    print("✓ Using gemini-1.5-flash model")
+except Exception as e:
+    print(f"⚠ Warning: gemini-1.5-flash not available, trying gemini-pro: {e}")
+    try:
+        model = genai.GenerativeModel(model_name="gemini-pro",
+                                      generation_config=generation_config,
+                                      safety_settings=safety_settings)
+        print("✓ Using gemini-pro model")
+    except Exception as e2:
+        print(f"❌ Error: Could not initialize Gemini model: {e2}")
+        raise
 
 convo = model.start_chat(history=[
 ])
@@ -76,8 +89,16 @@ app = Flask(__name__)
 
 # Configure CORS for production
 # Get allowed origins from environment or default to localhost and production frontend
-ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:3000,https://cfog.netlify.app').split(',')
-CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS}})
+ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:3000,https://cfog.netlify.app,https://*.netlify.app').split(',')
+# Allow all origins for development, but in production you should specify exact origins
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ALLOWED_ORIGINS,
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": False
+    }
+}, supports_credentials=False)
 
 
 # Load spaCy models once at startup to avoid reloading and compatibility warnings
@@ -499,12 +520,37 @@ def get_answer_bard(prompt):
 
 
 
+@app.route("/api/health", methods=["GET"])
+@cross_origin(origin="*")
+def health_check():
+    """Health check endpoint to verify backend is running"""
+    try:
+        # Test Gemini API connection
+        test_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+        test_response = test_model.generate_content("test")
+        gemini_status = "connected"
+    except Exception as e:
+        gemini_status = f"error: {str(e)}"
+    
+    return jsonify({
+        "status": "ok",
+        "backend": "running",
+        "gemini_api": gemini_status,
+        "message": "Backend is operational"
+    }), 200
+
 @app.route("/api/recommendations", methods=["POST"])
 @cross_origin(origin="*")
 def get_recommendations():
-    user_message = request.json["userMessage"]
+    try:
+        user_message = request.json.get("userMessage")
+        if not user_message:
+            return jsonify({"error": "userMessage is required"}), 400
+    except Exception as e:
+        return jsonify({"error": f"Invalid request: {str(e)}"}), 400
+    
     global count
-
+    bot_response = None
 
     if user_message:
 
@@ -534,6 +580,17 @@ def get_recommendations():
         if to_bard==True:
                 bot_response=get_answer_bard(user_message)
         
+    except Exception as e:
+        print(f"Error in get_recommendations: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "error": "An error occurred processing your request",
+            "bot_response": "I'm sorry, I encountered an error. Please try again or rephrase your question."
+        }), 500
+    
+    if bot_response is None:
+        bot_response = "I'm sorry, I couldn't process your request. Please try again."
     
     return jsonify({"bot_response": bot_response})
 
