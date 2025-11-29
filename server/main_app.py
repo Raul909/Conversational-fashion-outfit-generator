@@ -525,9 +525,8 @@ def get_answer_bard(prompt):
 def health_check():
     """Health check endpoint to verify backend is running"""
     try:
-        # Test Gemini API connection
-        test_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-        test_response = test_model.generate_content("test")
+        # Test Gemini API connection using the already initialized model
+        test_response = model.generate_content("test")
         gemini_status = "connected"
     except Exception as e:
         gemini_status = f"error: {str(e)}"
