@@ -223,14 +223,14 @@ function ChatBox() {
             <div className="flex-1 md:w-[80%] w-full flex flex-col" style={{ background: darkMode ? 'rgba(15, 15, 35, 0.4)' : 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)' }}>
               {/* <!-- Header --> */}
               <div className="py-3 md:py-4 px-4 md:px-6 flex flex-row justify-between items-center shadow-lg" style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED)' }}>
-                <div className="flex items-center flex-1 min-w-0">
+                <div className="flex items-center flex-1 min-w-0 pl-12 md:pl-0">
                   <div className="min-w-0 flex-1">
-                    <p className="text-lg md:text-2xl font-bold text-white truncate">Fashion Outfit Assistant</p>
+                    <p className="text-base md:text-2xl font-bold text-white truncate">Fashion Outfit Assistant</p>
                     <p className="text-xs md:text-sm text-indigo-100 truncate">AI-powered style recommendations</p>
                   </div>
                 </div>
                 {isConnected && (
-                  <div className="ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Connected"></div>
+                  <div className="ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0" title="Connected"></div>
                 )}
               </div>
 
