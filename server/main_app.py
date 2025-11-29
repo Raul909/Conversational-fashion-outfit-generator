@@ -551,34 +551,35 @@ def get_recommendations():
     
     global count
     bot_response = None
+    
+    try:
+        if user_message:
 
-    if user_message:
 
 
+            if to_bard==False:
+                    
+                        count+=1
+                        if count==1:
+                            global initial_prompt
+                            initial_prompt=user_message
+                        resp=check_prompt(user_message)
+                        if to_bard==True:
+                            
+                            occasion2=" ".join(occasion)
+                            print("Finally...")
+                            print("detected_occasion: "+occasion2)
+                            print("detected_age: "+age)
+                            print("detected_gender: "+gender)
+                            print("detected_location: "+location)
+                            user_message=initial_prompt+" I am "+age+" years old "+gender+" from "+location+", occasion is "+occasion2+", my colour preferences are "+colours
 
-        if to_bard==False:
-                
-                    count+=1
-                    if count==1:
-                        global initial_prompt
-                        initial_prompt=user_message
-                    resp=check_prompt(user_message)
-                    if to_bard==True:
-                        
-                        occasion2=" ".join(occasion)
-                        print("Finally...")
-                        print("detected_occasion: "+occasion2)
-                        print("detected_age: "+age)
-                        print("detected_gender: "+gender)
-                        print("detected_location: "+location)
-                        user_message=initial_prompt+" I am "+age+" years old "+gender+" from "+location+", occasion is "+occasion2+", my colour preferences are "+colours
-
-                    else:
-                         bot_response=resp
-                
-                
-        if to_bard==True:
-                bot_response=get_answer_bard(user_message)
+                        else:
+                             bot_response=resp
+                    
+                    
+            if to_bard==True:
+                    bot_response=get_answer_bard(user_message)
         
     except Exception as e:
         print(f"Error in get_recommendations: {e}")
