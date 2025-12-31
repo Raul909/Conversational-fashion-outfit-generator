@@ -718,7 +718,7 @@ curl -X POST http://127.0.0.1:5000/api/recommendations \
 
 For issues and questions:
 - Create an issue on GitHub
-- Contact: [Your Email]
+- Contact: [rb341047@gmail.com]
 
 ---
 
